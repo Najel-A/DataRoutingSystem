@@ -1,0 +1,7 @@
+docker-compose.yml
+Dockerfile
+package-lock.json
+node_modules
+nginx.conf
+.env
+venv
