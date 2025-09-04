@@ -10,6 +10,8 @@ const Users = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showUserModal, setShowUserModal] = useState(false);
+  const [selectedTranscript, setSelectedTranscript] = useState(null);
+  const [showTranscriptModal, setShowTranscriptModal] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -117,13 +119,41 @@ const Users = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Interview History</label>
-              <div className="bg-gray-50 p-3 rounded-lg max-h-32 overflow-y-auto">
+              <div className="bg-gray-50 p-3 rounded-lg max-h-64 overflow-y-auto">
                 {selectedUser.interviewHistory.map((interview, index) => (
-                  <div key={interview.id} className="text-sm text-gray-900 mb-2">
-                    <p>
-                      <span className="font-medium">Interview {index + 1}:</span> {interview.date} - 
-                      {interview.duration}min - ${interview.cost} - Rating: {interview.rating}/5
-                    </p>
+                  <div key={interview.id} className="text-sm text-gray-900 mb-4 border-b border-gray-200 pb-3 last:border-b-0">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <p className="font-medium">
+                          Interview {index + 1}: {new Date(interview.date).toLocaleDateString()}
+                        </p>
+                        <p className="text-gray-600">
+                          {interview.duration}min • ${interview.cost} • Rating: {interview.rating}/5 • {interview.outcome}
+                        </p>
+                        <p className="text-gray-600">Interviewer: {interview.interviewer}</p>
+                      </div>
+                      {interview.transcript && (
+                        <button
+                          onClick={() => {
+                            setSelectedTranscript(interview.transcript);
+                            setShowTranscriptModal(true);
+                          }}
+                          className="text-primary-600 hover:text-primary-800 text-xs bg-primary-50 px-2 py-1 rounded"
+                        >
+                          View Transcript
+                        </button>
+                      )}
+                    </div>
+                    {interview.transcript && (
+                      <div className="mt-2">
+                        <p className="text-xs text-gray-500 mb-1">
+                          <span className="font-medium">Type:</span> {interview.transcript.title}
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          {interview.transcript.summary}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -139,6 +169,76 @@ const Users = () => {
               <button className="btn-primary flex items-center">
                 <Route className="h-4 w-4 mr-2" />
                 Route User
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const TranscriptModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Interview Transcript</h3>
+          <button
+            onClick={() => {
+              setShowTranscriptModal(false);
+              setSelectedTranscript(null);
+            }}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {selectedTranscript && (
+          <div className="space-y-6">
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h4 className="text-lg font-medium text-gray-900 mb-2">{selectedTranscript.title}</h4>
+              <p className="text-sm text-gray-600 mb-3">{selectedTranscript.summary}</p>
+              <div className="flex space-x-4 text-xs text-gray-500">
+                <span>Duration: {selectedTranscript.duration} minutes</span>
+              </div>
+            </div>
+
+            <div>
+              <h5 className="text-md font-medium text-gray-900 mb-3">Interview Content</h5>
+              <div className="bg-gray-50 p-4 rounded-lg max-h-64 overflow-y-auto">
+                <pre className="text-sm text-gray-800 whitespace-pre-wrap font-mono">
+                  {selectedTranscript.content}
+                </pre>
+              </div>
+            </div>
+
+            <div>
+              <h5 className="text-md font-medium text-gray-900 mb-3">Key Points</h5>
+              <ul className="list-disc list-inside space-y-1">
+                {selectedTranscript.keyPoints.map((point, index) => (
+                  <li key={index} className="text-sm text-gray-700">{point}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h5 className="text-md font-medium text-gray-900 mb-3">Interviewer Notes</h5>
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <p className="text-sm text-gray-800">{selectedTranscript.interviewerNotes}</p>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-4">
+              <button
+                onClick={() => {
+                  setShowTranscriptModal(false);
+                  setSelectedTranscript(null);
+                }}
+                className="btn-secondary"
+              >
+                Close
               </button>
             </div>
           </div>
@@ -312,6 +412,7 @@ const Users = () => {
       </div>
 
       {showUserModal && <UserModal />}
+      {showTranscriptModal && <TranscriptModal />}
     </div>
   );
 };

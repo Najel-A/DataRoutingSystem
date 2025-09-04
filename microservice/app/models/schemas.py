@@ -6,6 +6,14 @@ class Location(BaseModel):
     state: str
     country: str
 
+class InterviewTranscript(BaseModel):
+    title: str
+    content: str
+    summary: str
+    keyPoints: List[str]
+    duration: int
+    interviewerNotes: str
+
 class Interview(BaseModel):
     id: str
     date: str
@@ -15,6 +23,7 @@ class Interview(BaseModel):
     rating: int
     notes: str
     outcome: str
+    transcript: Optional[InterviewTranscript] = None
 
 class Metadata(BaseModel):
     averageInterviewTime: int
