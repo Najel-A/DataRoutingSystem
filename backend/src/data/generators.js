@@ -1,3 +1,4 @@
+const { faker } = require('@faker-js/faker');
 const { v4: uuidv4 } = require('uuid');
 
 // In-memory storage for users and routing data
@@ -14,16 +15,16 @@ function generateSyntheticUsers(count = 100) {
   for (let i = 0; i < count; i++) {
     const user = {
       id: uuidv4(),
-      name: `User ${i + 1}`,
-      email: `user${i + 1}@example.com`,
-      age: Math.floor(Math.random() * 50) + 18,
-      gender: Math.random() > 0.5 ? 'Male' : 'Female',
+      name: faker.person.fullName(),
+      email: faker.internet.email(),
+      age: faker.number.int({ min: 18, max: 65 }),
+      gender: faker.person.sex(),
       demographic: demographics[Math.floor(Math.random() * demographics.length)],
       education: educationLevels[Math.floor(Math.random() * educationLevels.length)],
       industry: industries[Math.floor(Math.random() * industries.length)],
       location: {
-        city: `City ${Math.floor(Math.random() * 20) + 1}`,
-        state: `State ${Math.floor(Math.random() * 10) + 1}`,
+        city: faker.location.city(),
+        state: faker.location.state(),
         country: 'USA'
       },
       interviewHistory: generateInterviewHistory(),
@@ -66,120 +67,219 @@ function generateInterviewHistory() {
   return history;
 }
 
-// Generate realistic interview transcripts
+// Generate realistic interview transcripts using Faker
 function generateInterviewTranscript(interviewNumber) {
-  const transcriptTemplates = [
-    {
-      title: "Technical Skills Assessment",
-      content: `Interviewer: "Good morning! Thank you for joining us today. Let's start with your technical background. Can you walk me through your experience with [technology]?"
-
-Candidate: "Absolutely. I've been working with [technology] for about [X] years. In my previous role at [Company], I was responsible for [specific task]. One project that stands out is when I [specific achievement]."
-
-Interviewer: "That's impressive. How do you approach debugging complex issues?"
-
-Candidate: "I follow a systematic approach. First, I [methodology]. Then I [process]. I've found that [insight] helps me identify the root cause more efficiently."
-
-Interviewer: "Great methodology. Any questions about our technical stack or the role?"
-
-Candidate: "Yes, I'm curious about [specific question]. Also, how does the team handle [process]?"`
-    },
-    {
-      title: "Behavioral Interview",
-      content: `Interviewer: "Welcome! Today we'll focus on behavioral questions. Tell me about a time when you had to work with a difficult team member."
-
-Candidate: "I had a situation where a colleague and I had conflicting approaches to a project. I [action taken]. We ended up [outcome]. I learned that [lesson learned]."
-
-Interviewer: "Excellent example. How do you handle tight deadlines?"
-
-Candidate: "I prioritize tasks based on [criteria]. I also [strategy]. For instance, when [specific situation], I [action] which resulted in [positive outcome]."
-
-Interviewer: "That shows good time management. What motivates you in your work?"
-
-Candidate: "I'm motivated by [motivation]. I particularly enjoy [aspect] because [reason]. I'm always looking to [growth area]."`
-    },
-    {
-      title: "Cultural Fit Assessment",
-      content: `Interviewer: "Thanks for coming in! Let's talk about our company culture. How do you prefer to collaborate with others?"
-
-Candidate: "I thrive in collaborative environments. I believe in [philosophy]. In my experience, [example of collaboration]."
-
-Interviewer: "That aligns well with our values. How do you handle feedback?"
-
-Candidate: "I welcome constructive feedback. I see it as [perspective]. When I received feedback about [area], I [response] and [result]."
-
-Interviewer: "Perfect. What does work-life balance mean to you?"
-
-Candidate: "I believe in [philosophy]. I've found that [strategy] helps me maintain [balance]. I'm also [additional insight]."
-
-Interviewer: "Great perspective. Any questions about our company culture?"`
-    },
-    {
-      title: "Problem-Solving Session",
-      content: `Interviewer: "Let's work through a scenario together. Imagine you're tasked with [scenario]. How would you approach this?"
-
-Candidate: "First, I'd [initial step]. Then I'd [analysis]. Based on that, I'd [strategy]. I'd also consider [factors]."
-
-Interviewer: "Interesting approach. What if [constraint]?"
-
-Candidate: "That would change my approach. I'd [modified strategy]. I might also [alternative approach] to ensure [goal]."
-
-Interviewer: "Good thinking. How would you measure success?"
-
-Candidate: "I'd track [metrics]. I'd also [evaluation method]. The key indicators would be [specific measures]."
-
-Interviewer: "Excellent framework. Any other considerations?"
-
-Candidate: "I'd also think about [additional factors] and [long-term implications]."`
-    },
-    {
-      title: "Leadership Discussion",
-      content: `Interviewer: "Tell me about your leadership experience. How do you motivate a team?"
-
-Candidate: "I believe in [leadership philosophy]. I've led teams by [approach]. For example, when [situation], I [action] which resulted in [outcome]."
-
-Interviewer: "How do you handle conflict within your team?"
-
-Candidate: "I address conflicts [method]. I've found that [strategy] works well. In one instance, [specific example]."
-
-Interviewer: "What's your approach to delegation?"
-
-Candidate: "I delegate based on [criteria]. I ensure [process]. I've learned that [insight] leads to better outcomes."
-
-Interviewer: "How do you develop your team members?"
-
-Candidate: "I focus on [development approach]. I provide [support]. I've seen team members grow in [areas] through [methods]."`
-    }
+  const interviewTypes = [
+    "Technical Skills Assessment",
+    "Behavioral Interview", 
+    "Cultural Fit Assessment",
+    "Problem-Solving Session",
+    "Leadership Discussion",
+    "Case Study Interview",
+    "System Design Interview",
+    "Product Management Interview"
   ];
 
-  const template = transcriptTemplates[Math.floor(Math.random() * transcriptTemplates.length)];
+  const title = faker.helpers.arrayElement(interviewTypes);
   
-  // Add some variation to make transcripts more realistic
-  const variations = [
-    "The candidate showed strong communication skills throughout the interview.",
-    "There were some technical gaps that we discussed further.",
-    "The candidate demonstrated excellent problem-solving abilities.",
-    "We had a good discussion about career goals and aspirations.",
-    "The candidate asked thoughtful questions about the role and company.",
-    "There were some areas where additional experience would be beneficial.",
-    "The candidate showed enthusiasm and cultural fit.",
-    "We discussed potential challenges and how to address them."
-  ];
-
-  const additionalNotes = variations[Math.floor(Math.random() * variations.length)];
+  // Generate dynamic content based on interview type
+  const content = generateDynamicTranscriptContent(title);
+  
+  // Generate realistic summary using faker
+  const summary = generateInterviewSummary(title, interviewNumber);
+  
+  // Generate dynamic key points
+  const keyPoints = generateKeyPoints();
+  
+  // Generate realistic interviewer notes
+  const interviewerNotes = generateInterviewerNotes();
   
   return {
-    title: template.title,
-    content: template.content,
-    summary: `Interview ${interviewNumber} focused on ${template.title.toLowerCase()}. ${additionalNotes}`,
-    keyPoints: [
-      "Candidate demonstrated relevant experience",
-      "Good communication and interpersonal skills",
-      "Showed interest in the role and company",
-      "Asked appropriate questions about the position"
-    ],
-    duration: Math.floor(Math.random() * 45) + 30, // 30-75 minutes
-    interviewerNotes: `Overall positive impression. Candidate shows potential for the role. ${Math.random() > 0.5 ? 'Recommended for next round.' : 'Would benefit from additional experience in specific areas.'}`
+    title: title,
+    content: content,
+    summary: summary,
+    keyPoints: keyPoints,
+    duration: faker.number.int({ min: 30, max: 90 }), // 30-90 minutes
+    interviewerNotes: interviewerNotes
   };
+}
+
+// Generate dynamic transcript content based on interview type
+function generateDynamicTranscriptContent(interviewType) {
+  const interviewerName = faker.person.fullName();
+  const candidateName = faker.person.firstName();
+  const companyName = faker.company.name();
+  const technology = faker.helpers.arrayElement(['JavaScript', 'Python', 'React', 'Node.js', 'AWS', 'Docker', 'Kubernetes', 'Machine Learning', 'Data Science', 'DevOps']);
+  const projectName = faker.company.buzzPhrase();
+  
+  const templates = {
+    "Technical Skills Assessment": `Interviewer: "${faker.lorem.sentence({ min: 8, max: 15 })} Can you walk me through your experience with ${technology}?"
+
+Candidate: "${faker.lorem.sentences(2)} In my previous role at ${faker.company.name()}, I was responsible for ${faker.lorem.words(3)}. One project that stands out is when I ${faker.lorem.sentence({ min: 6, max: 12 })}"
+
+Interviewer: "${faker.lorem.sentence({ min: 8, max: 15 })} How do you approach debugging complex issues?"
+
+Candidate: "${faker.lorem.sentences(2)} I follow a systematic approach. First, I ${faker.lorem.words(4)}. Then I ${faker.lorem.words(3)}. I've found that ${faker.lorem.sentence({ min: 5, max: 10 })}"
+
+Interviewer: "${faker.lorem.sentence({ min: 6, max: 12 })} Any questions about our technical stack?"
+
+Candidate: "${faker.lorem.sentences(2)} I'm curious about ${faker.lorem.words(3)}. Also, how does the team handle ${faker.lorem.words(2)}?"`,
+
+    "Behavioral Interview": `Interviewer: "${faker.lorem.sentence({ min: 8, max: 15 })} Tell me about a time when you had to work with a difficult team member."
+
+Candidate: "${faker.lorem.sentences(2)} I had a situation where a colleague and I had conflicting approaches to ${faker.lorem.words(2)}. I ${faker.lorem.words(3)}. We ended up ${faker.lorem.sentence({ min: 4, max: 8 })}. I learned that ${faker.lorem.sentence({ min: 5, max: 10 })}"
+
+Interviewer: "${faker.lorem.sentence({ min: 6, max: 12 })} How do you handle tight deadlines?"
+
+Candidate: "${faker.lorem.sentences(2)} I prioritize tasks based on ${faker.lorem.words(3)}. I also ${faker.lorem.words(2)}. For instance, when ${faker.lorem.sentence({ min: 4, max: 8 })}, I ${faker.lorem.words(2)} which resulted in ${faker.lorem.sentence({ min: 4, max: 8 })}"
+
+Interviewer: "${faker.lorem.sentence({ min: 6, max: 12 })} What motivates you in your work?"
+
+Candidate: "${faker.lorem.sentences(2)} I'm motivated by ${faker.lorem.words(2)}. I particularly enjoy ${faker.lorem.words(2)} because ${faker.lorem.sentence({ min: 4, max: 8 })}. I'm always looking to ${faker.lorem.words(3)}"`,
+
+    "Cultural Fit Assessment": `Interviewer: "${faker.lorem.sentence({ min: 8, max: 15 })} How do you prefer to collaborate with others?"
+
+Candidate: "${faker.lorem.sentences(2)} I thrive in ${faker.lorem.words(2)} environments. I believe in ${faker.lorem.words(3)}. In my experience, ${faker.lorem.sentence({ min: 5, max: 10 })}"
+
+Interviewer: "${faker.lorem.sentence({ min: 6, max: 12 })} How do you handle feedback?"
+
+Candidate: "${faker.lorem.sentences(2)} I welcome ${faker.lorem.words(2)} feedback. I see it as ${faker.lorem.words(2)}. When I received feedback about ${faker.lorem.words(2)}, I ${faker.lorem.words(2)} and ${faker.lorem.sentence({ min: 4, max: 8 })}"
+
+Interviewer: "${faker.lorem.sentence({ min: 6, max: 12 })} What does work-life balance mean to you?"
+
+Candidate: "${faker.lorem.sentences(2)} I believe in ${faker.lorem.words(3)}. I've found that ${faker.lorem.words(2)} helps me maintain ${faker.lorem.words(2)}. I'm also ${faker.lorem.sentence({ min: 4, max: 8 })}"`,
+
+    "Problem-Solving Session": `Interviewer: "${faker.lorem.sentence({ min: 8, max: 15 })} Imagine you're tasked with ${faker.lorem.words(3)}. How would you approach this?"
+
+Candidate: "${faker.lorem.sentences(2)} First, I'd ${faker.lorem.words(3)}. Then I'd ${faker.lorem.words(2)}. Based on that, I'd ${faker.lorem.words(3)}. I'd also consider ${faker.lorem.words(2)}"
+
+Interviewer: "${faker.lorem.sentence({ min: 6, max: 12 })} What if ${faker.lorem.words(2)}?"
+
+Candidate: "${faker.lorem.sentences(2)} That would change my approach. I'd ${faker.lorem.words(3)}. I might also ${faker.lorem.words(2)} to ensure ${faker.lorem.words(2)}"
+
+Interviewer: "${faker.lorem.sentence({ min: 6, max: 12 })} How would you measure success?"
+
+Candidate: "${faker.lorem.sentences(2)} I'd track ${faker.lorem.words(2)}. I'd also ${faker.lorem.words(2)}. The key indicators would be ${faker.lorem.words(3)}"`,
+
+    "Leadership Discussion": `Interviewer: "${faker.lorem.sentence({ min: 8, max: 15 })} How do you motivate a team?"
+
+Candidate: "${faker.lorem.sentences(2)} I believe in ${faker.lorem.words(3)}. I've led teams by ${faker.lorem.words(2)}. For example, when ${faker.lorem.sentence({ min: 4, max: 8 })}, I ${faker.lorem.words(2)} which resulted in ${faker.lorem.sentence({ min: 4, max: 8 })}"
+
+Interviewer: "${faker.lorem.sentence({ min: 6, max: 12 })} How do you handle conflict within your team?"
+
+Candidate: "${faker.lorem.sentences(2)} I address conflicts by ${faker.lorem.words(2)}. I've found that ${faker.lorem.words(2)} works well. In one instance, ${faker.lorem.sentence({ min: 5, max: 10 })}"
+
+Interviewer: "${faker.lorem.sentence({ min: 6, max: 12 })} What's your approach to delegation?"
+
+Candidate: "${faker.lorem.sentences(2)} I delegate based on ${faker.lorem.words(2)}. I ensure ${faker.lorem.words(2)}. I've learned that ${faker.lorem.sentence({ min: 5, max: 10 })}"`,
+
+    "Case Study Interview": `Interviewer: "${faker.lorem.sentence({ min: 8, max: 15 })} Let's work through a case study about ${faker.lorem.words(3)}. How would you approach this?"
+
+Candidate: "${faker.lorem.sentences(2)} I'd start by ${faker.lorem.words(3)}. Then I'd ${faker.lorem.words(2)} to understand ${faker.lorem.words(2)}. Based on that analysis, I'd ${faker.lorem.words(3)}"
+
+Interviewer: "${faker.lorem.sentence({ min: 6, max: 12 })} What factors would you consider?"
+
+Candidate: "${faker.lorem.sentences(2)} I'd look at ${faker.lorem.words(3)}, ${faker.lorem.words(2)}, and ${faker.lorem.words(2)}. I'd also consider ${faker.lorem.sentence({ min: 4, max: 8 })}"
+
+Interviewer: "${faker.lorem.sentence({ min: 6, max: 12 })} How would you measure the success of your solution?"
+
+Candidate: "${faker.lorem.sentences(2)} I'd track ${faker.lorem.words(2)} and ${faker.lorem.words(2)}. I'd also monitor ${faker.lorem.words(2)} to ensure ${faker.lorem.sentence({ min: 4, max: 8 })}"`
+  };
+
+  return templates[interviewType] || templates["Technical Skills Assessment"];
+}
+
+// Generate dynamic interview summary
+function generateInterviewSummary(interviewType, interviewNumber) {
+  const outcomes = [
+    "showed strong technical skills and problem-solving abilities",
+    "demonstrated excellent communication and interpersonal skills", 
+    "displayed good cultural fit and alignment with company values",
+    "showed potential but would benefit from additional experience",
+    "asked thoughtful questions about the role and company culture",
+    "demonstrated leadership qualities and team collaboration skills",
+    "showed analytical thinking and structured approach to problems",
+    "displayed enthusiasm and genuine interest in the position"
+  ];
+
+  const challenges = [
+    "some technical gaps that we discussed further",
+    "areas where additional experience would be beneficial", 
+    "questions about specific technical implementations",
+    "discussion about career goals and growth opportunities",
+    "exploration of how they handle challenging situations",
+    "evaluation of their problem-solving methodology"
+  ];
+
+  const outcome = faker.helpers.arrayElement(outcomes);
+  const challenge = faker.helpers.arrayElement(challenges);
+  
+  return `Interview ${interviewNumber} focused on ${interviewType.toLowerCase()}. The candidate ${outcome}. We also discussed ${challenge}.`;
+}
+
+// Generate dynamic key points
+function generateKeyPoints() {
+  const basePoints = [
+    "Candidate demonstrated relevant experience",
+    "Good communication and interpersonal skills", 
+    "Showed interest in the role and company",
+    "Asked appropriate questions about the position"
+  ];
+
+  const additionalPoints = [
+    "Strong technical foundation in relevant areas",
+    "Good problem-solving and analytical skills",
+    "Positive attitude and cultural fit",
+    "Clear career goals and motivation",
+    "Experience with relevant tools and technologies",
+    "Good examples of past achievements",
+    "Shows potential for growth and development",
+    "Demonstrated leadership qualities"
+  ];
+
+  // Select 3-5 random points
+  const selectedPoints = faker.helpers.arrayElements(additionalPoints, { min: 1, max: 3 });
+  return [...basePoints.slice(0, 2), ...selectedPoints];
+}
+
+// Generate realistic interviewer notes
+function generateInterviewerNotes() {
+  const impressions = [
+    "Overall positive impression",
+    "Strong candidate with good potential", 
+    "Solid technical background",
+    "Good cultural fit",
+    "Shows enthusiasm and motivation",
+    "Demonstrates strong problem-solving skills"
+  ];
+
+  const recommendations = [
+    "Recommended for next round",
+    "Would benefit from additional experience in specific areas",
+    "Strong candidate for the role",
+    "Good fit for the team and company culture",
+    "Shows potential but needs more experience",
+    "Excellent candidate with strong technical skills"
+  ];
+
+  const concerns = [
+    "Some areas need further discussion",
+    "Would like to see more examples of leadership",
+    "Technical skills could be stronger in certain areas",
+    "Good candidate but may need more experience",
+    "Shows promise but has room for growth"
+  ];
+
+  const impression = faker.helpers.arrayElement(impressions);
+  const recommendation = faker.helpers.arrayElement(recommendations);
+  const concern = Math.random() > 0.7 ? faker.helpers.arrayElement(concerns) : null;
+
+  let notes = `${impression}. ${recommendation}.`;
+  if (concern) {
+    notes += ` ${concern}.`;
+  }
+
+  return notes;
 }
 
 // Initialize active interviewers
@@ -190,16 +290,16 @@ function initializeInterviewers() {
   for (let i = 0; i < 25; i++) {
     const interviewer = {
       id: uuidv4(),
-      name: `Interviewer ${i + 1}`,
+      name: faker.person.fullName(),
       type: interviewerTypes[Math.floor(Math.random() * interviewerTypes.length)],
       specialization: specializations[Math.floor(Math.random() * specializations.length)],
-      experience: Math.floor(Math.random() * 15) + 1,
+      experience: faker.number.int({ min: 1, max: 15 }),
       availability: Math.random() > 0.3, // 70% available
-      currentLoad: Math.floor(Math.random() * 5),
+      currentLoad: faker.number.int({ min: 0, max: 5 }),
       maxLoad: 8,
-      rating: (Math.random() * 2) + 3, // 3-5 rating
+      rating: faker.number.float({ min: 3, max: 5, fractionDigits: 1 }),
       languages: Math.random() > 0.8 ? ['English', 'Spanish'] : ['English'],
-      costPerHour: Math.floor(Math.random() * 100) + 50
+      costPerHour: faker.number.int({ min: 50, max: 150 })
     };
     activeInterviewers.push(interviewer);
   }

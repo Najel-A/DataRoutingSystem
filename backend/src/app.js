@@ -21,8 +21,8 @@ app.use((req, res, next) => {
     generateSyntheticUsers(config.data.userCount);
     initializeInterviewers(config.data.interviewerCount);
     req.app.locals.initialized = true;
-    console.log(`📊 Generated ${config.data.userCount} synthetic users`);
-    console.log(`👥 Initialized ${config.data.interviewerCount} interviewers`);
+    console.log(`$$$ Generated ${config.data.userCount} synthetic users`);
+    console.log(`$$$ Initialized ${config.data.interviewerCount} interviewers`);
   }
   next();
 });
