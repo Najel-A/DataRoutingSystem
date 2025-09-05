@@ -1,23 +1,48 @@
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
+const DatabaseService = require('./databaseService');
 const { 
   getUsers, 
   getActiveInterviewers, 
   addRoutingDecision, 
   updateInterviewerLoad 
-} = require('../data/generators');
+} = require('../data/generators'); // Fallback
 
 const MICROSERVICE_URL = process.env.MICROSERVICE_URL || 'http://0.0.0.0:8000';
 
 // Smart routing algorithm
 async function routeUser(userId, requirements = {}) {
-  const users = getUsers();
-  const activeInterviewers = getActiveInterviewers();
-  
-  const user = users.find(u => u.id === userId);
-  if (!user) {
-    throw new Error('User not found');
+  try {
+    // Try to get data from database first
+    const user = await DatabaseService.getUserById(userId);
+    const activeInterviewers = await DatabaseService.getAvailableInterviewers();
+    
+    if (!user) {
+      // Fallback to in-memory data
+      const users = getUsers();
+      const fallbackUser = users.find(u => u.id === userId);
+      if (!fallbackUser) {
+        throw new Error('User not found');
+      }
+      
+      // Use fallback data
+      const fallbackInterviewers = getActiveInterviewers();
+      return await routeUserWithData(fallbackUser, fallbackInterviewers, requirements, true);
+    }
+    
+    // Convert database user to plain object
+    const userData = user.toJSON ? user.toJSON() : user;
+    const interviewerData = activeInterviewers.map(i => i.toJSON ? i.toJSON() : i);
+    
+    return await routeUserWithData(userData, interviewerData, requirements, false);
+  } catch (error) {
+    console.error('Error in routeUser:', error);
+    throw error;
   }
+}
+
+// Helper function to handle routing with data
+async function routeUserWithData(user, activeInterviewers, requirements, isFallback = false) {
 
   // Get routing recommendation from Python microservice
   try {
@@ -31,21 +56,29 @@ async function routeUser(userId, requirements = {}) {
     
     // Update interviewer load
     if (recommendation.interviewerId) {
-      updateInterviewerLoad(recommendation.interviewerId, 1);
+      if (isFallback) {
+        updateInterviewerLoad(recommendation.interviewerId, 1);
+      } else {
+        await DatabaseService.updateInterviewerLoad(recommendation.interviewerId, 1);
+      }
     }
 
     // Log routing decision
     const routingDecision = {
       id: uuidv4(),
       timestamp: new Date().toISOString(),
-      userId: userId,
+      userId: user.id,
       interviewerId: recommendation.interviewerId,
       reason: recommendation.reason,
       score: recommendation.score,
       requirements: requirements
     };
     
-    addRoutingDecision(routingDecision);
+    if (isFallback) {
+      addRoutingDecision(routingDecision);
+    } else {
+      await DatabaseService.addRoutingDecision(routingDecision);
+    }
     
     return {
       success: true,

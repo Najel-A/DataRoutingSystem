@@ -9,7 +9,10 @@
     "test": "jest",
     "build": "echo 'No build step required for Node.js'",
     "lint": "eslint src/",
-    "lint:fix": "eslint src/ --fix"
+    "lint:fix": "eslint src/ --fix",
+    "seed": "node scripts/seed.js",
+    "seed:reset": "node scripts/seed.js 100",
+    "test:db": "node scripts/test-db.js"
   },
   "dependencies": {
     "@faker-js/faker": "^9.9.0",
@@ -17,6 +20,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "pg": "^8.11.3",
     "uuid": "^9.0.1"
   },
   "devDependencies": {

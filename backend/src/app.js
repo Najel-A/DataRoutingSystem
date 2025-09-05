@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const config = require('./config');
-const { generateSyntheticUsers, initializeInterviewers } = require('./data/generators');
+const { testConnection } = require('./config/database');
 const userRoutes = require('./routes/userRoutes');
 const routingRoutes = require('./routes/routingRoutes');
 const interviewerRoutes = require('./routes/interviewerRoutes');
@@ -14,15 +14,23 @@ const app = express();
 app.use(cors(config.cors));
 app.use(express.json());
 
-// Initialize data
-app.use((req, res, next) => {
-  // Initialize data on first request if not already done
-  if (!req.app.locals.initialized) {
-    generateSyntheticUsers(config.data.userCount);
-    initializeInterviewers(config.data.interviewerCount);
-    req.app.locals.initialized = true;
-    console.log(`$$$ Generated ${config.data.userCount} synthetic users`);
-    console.log(`$$$ Initialized ${config.data.interviewerCount} interviewers`);
+// Test database connection on startup
+app.use(async (req, res, next) => {
+  // Test database connection on first request
+  if (!req.app.locals.dbChecked) {
+    try {
+      const connected = await testConnection();
+      if (connected) {
+        console.log('$$$ Database connection verified');
+        req.app.locals.dbChecked = true;
+      } else {
+        console.log('$$$ Database connection failed - using fallback mode');
+        req.app.locals.dbChecked = true;
+      }
+    } catch (error) {
+      console.log('$$$ Database connection error:', error.message);
+      req.app.locals.dbChecked = true;
+    }
   }
   next();
 });
