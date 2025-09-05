@@ -14,6 +14,8 @@ const Dashboard = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [recentRoutings, setRecentRoutings] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [interviewers, setInterviewers] = useState([]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -21,18 +23,34 @@ const Dashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const [statsResponse, routingResponse] = await Promise.all([
+      const [statsResponse, routingResponse, usersResponse, interviewersResponse] = await Promise.all([
         axios.get('/api/stats'),
-        axios.get('/api/routing-history?limit=5')
+        axios.get('/api/routing-history?limit=5'),
+        axios.get('/api/users?limit=1000'), // Get all users to map IDs to names
+        axios.get('/api/interviewers') // Get all interviewers to map IDs to names
       ]);
       
       setStats(statsResponse.data);
       setRecentRoutings(routingResponse.data.history);
+      setUsers(usersResponse.data.users);
+      setInterviewers(interviewersResponse.data);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Helper function to get user name by ID
+  const getUserName = (userId) => {
+    const user = users.find(u => u.id === userId);
+    return user ? user.name : `User ${userId.slice(0, 8)}...`;
+  };
+
+  // Helper function to get interviewer name by ID
+  const getInterviewerName = (interviewerId) => {
+    const interviewer = interviewers.find(i => i.id === interviewerId);
+    return interviewer ? interviewer.name : `Interviewer ${interviewerId.slice(0, 8)}...`;
   };
 
   const StatCard = ({ title, value, icon: Icon, color, subtitle }) => (
@@ -183,10 +201,10 @@ const Dashboard = () => {
                       {new Date(routing.timestamp).toLocaleString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      User {routing.userId.slice(0, 8)}...
+                      {getUserName(routing.userId)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {routing.interviewerId ? `Interviewer ${routing.interviewerId.slice(0, 8)}...` : 'N/A'}
+                      {routing.interviewerId ? getInterviewerName(routing.interviewerId) : 'N/A'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {routing.score ? routing.score.toFixed(3) : 'N/A'}

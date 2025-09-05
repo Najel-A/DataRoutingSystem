@@ -90,6 +90,18 @@ const Routing = () => {
     }
   };
 
+  // Helper function to get user name by ID
+  const getUserName = (userId) => {
+    const user = users.find(u => u.id === userId);
+    return user ? user.name : `User ${userId.slice(0, 8)}...`;
+  };
+
+  // Helper function to get interviewer name by ID
+  const getInterviewerName = (interviewerId) => {
+    const interviewer = interviewers.find(i => i.id === interviewerId);
+    return interviewer ? interviewer.name : `Interviewer ${interviewerId.slice(0, 8)}...`;
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
@@ -306,8 +318,8 @@ const Routing = () => {
                   </div>
                   
                   <div className="text-sm text-gray-900">
-                    <p>User: {routing.userId.slice(0, 8)}...</p>
-                    <p>Interviewer: {routing.interviewerId ? routing.interviewerId.slice(0, 8) + '...' : 'N/A'}</p>
+                    <p>User: {getUserName(routing.userId)}</p>
+                    <p>Interviewer: {routing.interviewerId ? getInterviewerName(routing.interviewerId) : 'N/A'}</p>
                     <p className="text-gray-600 text-xs mt-1">{routing.reason}</p>
                   </div>
                 </div>
